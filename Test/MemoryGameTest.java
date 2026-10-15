@@ -224,7 +224,7 @@ public class MemoryGameTest {
     // คำนวณคะแนนตามจำนวน Moves
     static int calculateScore(int moves) {
         ScoreManager score = new ScoreManager();
-        score.update(moves);
+        score.onMove(moves);
         return score.getScore();
     }
 
