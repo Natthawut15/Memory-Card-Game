@@ -4,80 +4,76 @@ import java.util.ArrayList;
 import src.Card.Card;
 
 public class GameLogic {
-    public enum Result { BLOCKED, FIRST, MATCH, WRONG, WIN, LOSE }
-
     private ArrayList<Card> cards;
+    private ScoreManager score = new ScoreManager();
     private int firstIndex = -1;
     private int secondIndex = -1;
-    private int moves = 0;
     private int matchedPairs = 0;
+    private int moves = 0;
     private boolean waiting = false;
     private boolean gameOver = false;
-    private ScoreManager scoreManager = new ScoreManager();
 
     public GameLogic(ArrayList<Card> cards) { this.cards = cards; }
 
-    public Result selectCard(int index) {
-        if (gameOver || waiting || index < 0 || index >= cards.size() ||
-                cards.get(index).isMatched() || index == firstIndex) return Result.BLOCKED;
+    // คืนค่า FIRST, MATCH, WRONG, WIN, LOSE หรือ BLOCKED
+    public String flip(int index) {
+        if (gameOver || waiting || index < 0 || index >= cards.size()
+                || cards.get(index).isMatched() || index == firstIndex) return "BLOCKED";
 
         if (firstIndex == -1) {
             firstIndex = index;
-            return Result.FIRST;
+            return "FIRST";
         }
 
         secondIndex = index;
         moves++;
-        scoreManager.onMove(moves);
+        score.update(moves);
         boolean same = cards.get(firstIndex).getImagePath()
                 .equals(cards.get(secondIndex).getImagePath());
-
         if (same) {
             cards.get(firstIndex).setMatched(true);
             cards.get(secondIndex).setMatched(true);
             matchedPairs++;
             firstIndex = -1;
             secondIndex = -1;
-            if (scoreManager.isOutOfPoints()) {
+            if (matchedPairs == cards.size() / 2 && score.getScore() > 0) {
                 gameOver = true;
-                return Result.LOSE;
+                return "WIN";
             }
-            if (matchedPairs == cards.size() / 2) {
+            if (score.getScore() == 0) {
                 gameOver = true;
-                return Result.WIN;
+                return "LOSE";
             }
-            return Result.MATCH;
-        }
-        if (scoreManager.isOutOfPoints()) {
-            gameOver = true;
-            return Result.LOSE;
+            return "MATCH";
         }
         waiting = true;
-        return Result.WRONG;
+        if (score.getScore() == 0) {
+            gameOver = true;
+            return "LOSE";
+        }
+        return "WRONG";
     }
 
-    public void finishWrongPair() {
-        if (waiting) {
-            firstIndex = -1;
-            secondIndex = -1;
-            waiting = false;
-        }
+    public void hideWrongPair() {
+        firstIndex = -1;
+        secondIndex = -1;
+        waiting = false;
     }
 
     public void reset(ArrayList<Card> newCards) {
         cards = newCards;
+        score.reset();
         firstIndex = -1;
         secondIndex = -1;
-        moves = 0;
         matchedPairs = 0;
+        moves = 0;
         waiting = false;
         gameOver = false;
-        scoreManager.reset();
     }
 
     public ArrayList<Card> getCards() { return cards; }
     public int getMoves() { return moves; }
-    public int getScore() { return scoreManager.getScore(); }
+    public int getScore() { return score.getScore(); }
     public int getMatchedPairs() { return matchedPairs; }
     public int getFirstIndex() { return firstIndex; }
     public int getSecondIndex() { return secondIndex; }
