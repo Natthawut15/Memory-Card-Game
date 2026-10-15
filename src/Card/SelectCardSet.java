@@ -80,8 +80,8 @@ public class SelectCardSet extends JFrame implements ActionListener {
                 "./Picture/fruits/banana.png",
                 "./Picture/fruits/grape.png",
                 "./Picture/fruits/mango.png",
-                "./Picture/fruits/Mushroom.png",
-                "./Picture/fruits/orange.webp",
+                "./Picture/fruits/Mushoom.png",
+                "./Picture/fruits/orange.png",
                 "./Picture/fruits/pineapple.png",
                 "./Picture/fruits/strawberry.png",
                 
