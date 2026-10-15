@@ -55,16 +55,23 @@ public class Board extends JFrame {
         JPanel p = new JPanel(new FlowLayout());
         JLabel playerLB = new JLabel("Player: " + player.getUsername());
         JLabel setLB = new JLabel("Set: " + cardSet.getName());
+
         timeLB = new JLabel("Time: 00:00");
         movesLB = new JLabel("Moves: 0");
         scoreLB = new JLabel("Score: 100");
+
         JButton newGameBT = new JButton("New Game");
         JButton selectSetBT = new JButton("Select Set");
-
+        JButton leaderboardBT = new JButton("Leaderboard");
         newGameBT.addActionListener(e -> resetGame());
         selectSetBT.addActionListener(e -> {
             stopTimers();
             new SelectCardSet(player);
+            dispose();
+        });
+        leaderboardBT.addActionListener(e -> {
+            stopTimers();
+            new LeaderBoard(player);
             dispose();
         });
 
@@ -74,6 +81,7 @@ public class Board extends JFrame {
         p.add(movesLB);
         p.add(newGameBT);
         p.add(selectSetBT);
+        p.add(leaderboardBT);
         p.add(scoreLB);
         return p;
     }

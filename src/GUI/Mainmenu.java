@@ -11,6 +11,7 @@ import src.Login.Login;
 
 public class Mainmenu extends JFrame implements ActionListener {
     
+    
     private Player player;
     private JButton startGameBT;
     private JButton leaderboardBT;
@@ -39,6 +40,8 @@ public class Mainmenu extends JFrame implements ActionListener {
         JLabel titleLB = new JLabel("Memory Card Game",SwingConstants.CENTER);
         JLabel playerLB = new JLabel("Player : " +player.getUsername(),SwingConstants.CENTER);
 
+
+        
         startGameBT = new JButton("Start Game");
         leaderboardBT = new JButton("Leaderboard");
         logoutBT = new JButton("Logout");
@@ -46,12 +49,14 @@ public class Mainmenu extends JFrame implements ActionListener {
         startGameBT.addActionListener(this);
         leaderboardBT.addActionListener(this);
         logoutBT.addActionListener(this);
+        
 
         add(titleLB);
         add(playerLB);
         add(startGameBT);
         add(leaderboardBT);
-        add(logoutBT);    
+        add(logoutBT);
+       
 }
 public void Final() {
 
@@ -67,14 +72,14 @@ public void actionPerformed(ActionEvent e) {
         new SelectCardSet(player);
         dispose();
 
-    } else if (e.getSource() == leaderboardBT) {
+        } else if (e.getSource() == leaderboardBT) {
         new LeaderBoard(player);
         dispose();
 
-    } else if (e.getSource() == logoutBT) {
+        } else if (e.getSource() == logoutBT) {
         new Login();
         dispose();
+    
+        }
     }
-
-}
 }
