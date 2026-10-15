@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import src.GUI.Board;
+import src.GUI.Mainmenu;
 import src.Login.Player;
 
 
@@ -14,7 +15,7 @@ public class SelectCardSet extends JFrame implements ActionListener {
     private JButton animalBT;
     private JButton fruitBT;
     private JButton numberBT;
-
+    private JButton Back;
     public SelectCardSet(Player player) {
 
         super("Choose Card Set");
@@ -28,7 +29,7 @@ public class SelectCardSet extends JFrame implements ActionListener {
 
     public void Init() {
 
-        setLayout(new GridLayout(4, 1, 10, 10));
+        setLayout(new GridLayout(5, 1, 10, 10));
     }
 
     public void setComponent() {
@@ -37,20 +38,23 @@ public class SelectCardSet extends JFrame implements ActionListener {
         animalBT = new JButton("Animals");
         fruitBT = new JButton("Fruits");
         numberBT = new JButton("Numbers");
+        Back = new JButton("Back");
 
         animalBT.addActionListener(this);
         fruitBT.addActionListener(this);
         numberBT.addActionListener(this);
+        Back.addActionListener(this);
 
         add(titleLB);
         add(animalBT);
         add(fruitBT);
         add(numberBT);
+        add(Back);
     }
      
     public void Final() {
 
-        setSize(400, 400);
+        setSize(500, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
@@ -102,6 +106,10 @@ public class SelectCardSet extends JFrame implements ActionListener {
             }
         );
             new Board(player, numberset);
+            dispose();
+        }
+        else if (e.getSource() == Back) {
+            new Mainmenu(player);
             dispose();
         }
     }
