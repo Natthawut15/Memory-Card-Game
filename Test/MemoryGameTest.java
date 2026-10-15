@@ -8,36 +8,43 @@ import src.Card.Card;
 import src.Card.CardSet;
 import src.Login.Player;
 import src.Login.ScoreCSV;
+import src.Game.GameLogic;
+import src.Game.ScoreManager;
 
 /*
-test card
-1: การ์ดที่สร้างใหม่ ต้องยังไม่ถูกจับคู่ ค่าเริ่มต้นต้องเป็น false
-2: สั่งให้จับคู่สำเร็จแล้ว ต้องเปลี่ยนเป็นจับคู่แล้ว
-3: getImagePath() ต้องคืน path ที่ส่งเข้าไปตอนสร้างการ์ด
+Card Test
+1	สร้างการ์ดใหม่ สถานะจับคู่ต้องเป็น false
+2	เมื่อสั่ง setMatched(true) การ์ดต้องเปลี่ยนเป็นจับคู่สำเร็จ
+3	getImagePath() ต้องคืนตำแหน่งรูปภาพที่กำหนดไว้
 
 test card set
-4: getName() ต้องคืนชื่อชุดที่ตั้งไว้ตอนสร้าง
-5: createCards() ต้องสร้างการ์ดออกมาเป็นจำนวนเลขคู่
-6: createCards() ต้องสร้างการ์ดได้ 16 ใบพอดี (Board สร้างปุ่มไว้ 16 ปุ่ม)
-7: การ์ดแต่ละรูปต้องมี 2 ใบพอดี
-8: ตอนเริ่ม ต้องไม่มีการ์ดใบไหนถูกจับคู่
-9: การสลับที่ต้องทำงานจริง สร้างหลายรอบแล้วลำดับต้องไม่เหมือนกันทุกรอบ
-10: getUsername() ต้องคืนชื่อที่ส่งเข้าไปตอนสร้างผู้เล่น
+4	getName() ต้องคืนชื่อชุดการ์ดถูกต้อง
+5	จำนวนการ์ดที่สร้างต้องเป็นเลขคู่
+6	ต้องสร้างการ์ดทั้งหมด 16 ใบ
+7	การ์ดแต่ละรูปต้องมี 2 ใบเท่านั้น
+8	การ์ดทุกใบต้องยังไม่ถูกจับคู่เมื่อเริ่มเกม
+9	การสลับการ์ดต้องทำให้เกิดลำดับที่แตกต่างกัน
+
+PlayerTest
+10	สร้างผู้เล่นใหม่ getUsername() ต้องคืนชื่อผู้เล่นถูกต้อง
 
 logicgame
-11: คลิกการ์ดใบเดิมซ้ำ ต้องไม่นับ
-12: เปิดครบ 2 ใบ moves เพิ่ม 1
-13: จับคู่ถูก ต้องค้างเปิด และกดซ้ำไม่ได้
-14: จับคู่ครบ 8 คู่ เกมจบ
-15: New Game รีเซ็ตสถานะ
+ข้อ	สิ่งที่ทดสอบ
+11	กดการ์ดใบเดิมซ้ำ ต้องไม่นับ Moves
+12	เปิดการ์ดครบ 2 ใบ Moves เพิ่ม 1
+13	จับคู่ผิด ระหว่างรอห้ามเปิดการ์ดใบที่ 3
+14	เมื่อจับคู่ผิด ระบบต้องสามารถคืนสถานะการ์ดและยกเลิกการรอได้
+15	จับคู่ถูก การ์ดต้องเป็น matched = true และกดซ้ำไม่ได้
+16	จับคู่ครบ 8 คู่ เกมต้องชนะและคะแนนเป็น 100 หากไม่เคยจับผิด
+17	กด New Game ต้องรีเซ็ต Moves, คะแนน, จำนวนคู่ที่จับได้ และสถานะเกม
 
 score test
-16.เริ่มต้นมี 100 คะแนน
-17.Moves 1–8 คะแนนไม่ลด
-18.ตั้งแต่ Move 9 หักครั้งละ 3 คะแนน
-19.คะแนนต้องไม่ติดลบ
-20.Leaderboard เก็บคะแนนสูงสุดของผู้เล่น
-21.Leaderboard เรียงคะแนนมากไปน้อย และใช้เวลาเมื่อคะแนนเท่ากัน
+18	คะแนนเริ่มต้นต้องเป็น 100
+19	Moves 1–8 คะแนนต้องไม่ลด
+20	Move 9 เป็นต้นไป คะแนนลดครั้งละ 3
+21	คะแนนต้องไม่ติดลบ
+22	Leaderboard ต้องเก็บคะแนนสูงสุดของผู้เล่นแต่ละคน
+23	Leaderboard ต้องเรียงคะแนนจากมากไปน้อย และหากเท่ากันให้ใช้เวลาน้อยกว่าอยู่อันดับสูงกว่า
 
 */
 
@@ -157,45 +164,68 @@ public class MemoryGameTest {
 
     //------------------------------------//-------------------------------------------//
 
-     static void testBoard() {
-        System.out.println("--- Board tests ---");
-
-        try {
-            String code = Files.readString(
-                Paths.get("src/GUI/Board.java")
-            );
-
-    check(code.contains("index == firstIndex"),"Same card cannot count twice");
-
-    check(code.contains("moves++"),"Two cards increase moves");
-
-    check(code.contains("setMatched(true)") && code.contains("setEnabled(false)"),"Correct pair stays matched");
-
-    check(code.contains("matchedPairs == cards.size() / 2") && code.contains("finishGame()"),"All 8 pairs finish game");
-
-    check(code.contains("moves = 0;") && code.contains("seconds = 0;") && code.contains("matchedPairs = 0;") && code.contains("cards = cardSet.createCards()"),"New Game resets everything");
-
-        } catch (Exception e) {
-            failed++;
-            System.out.println("[FAIL] Cannot read Board.java");
+    static void testBoard() {
+        System.out.println("--- GameLogic tests ---");
+        CardSet set = new CardSet("Test", new String[] {
+            "a", "b", "c", "d", "e", "f", "g", "h"
+        });
+        GameLogic game = new GameLogic(set.createCards());
+        ArrayList<Card> cards = game.getCards();
+        int pair = -1;
+        int different = -1;
+        for (int i = 1; i < cards.size(); i++) {
+            if (cards.get(i).getImagePath().equals(cards.get(0).getImagePath())) pair = i;
+            else if (different == -1) different = i;
         }
+
+        game.flip(0);
+        check(game.flip(0).equals("BLOCKED") && game.getMoves() == 0,
+            "Same card cannot count twice");
+        game.flip(different);
+        check(game.getMoves() == 1, "Two cards increase moves");
+        int third = pair;
+        check(game.isWaiting() && game.flip(third).equals("BLOCKED") &&
+            game.getMoves() == 1, "Wrong pair blocks third card");
+        game.hideWrongPair();
+        check(!game.isWaiting() && game.getFirstIndex() == -1,
+            "Wrong pair can be hidden");
+        game.flip(0);
+        game.flip(pair);
+        check(cards.get(0).isMatched() && cards.get(pair).isMatched() &&
+            game.flip(0).equals("BLOCKED"), "Correct pair stays matched");
+
+        game.reset(set.createCards());
+        cards = game.getCards();
+        boolean[] used = new boolean[cards.size()];
+        String finalResult = "";
+        for (int i = 0; i < cards.size(); i++) {
+            if (used[i]) continue;
+            for (int j = i + 1; j < cards.size(); j++) {
+                if (!used[j] && cards.get(i).getImagePath().equals(cards.get(j).getImagePath())) {
+                    game.flip(i);
+                    finalResult = game.flip(j);
+                    used[i] = true;
+                    used[j] = true;
+                    break;
+                }
+            }
+        }
+        check(finalResult.equals("WIN") && game.getMatchedPairs() == 8 &&
+            game.getScore() == 100, "All 8 pairs finish game");
+        game.reset(set.createCards());
+        boolean clean = game.getMoves() == 0 && game.getScore() == 100 &&
+            game.getMatchedPairs() == 0 && !game.isGameOver();
+        for (Card card : game.getCards()) if (card.isMatched()) clean = false;
+        check(clean, "New Game resets everything");
     }
 
         // ---------- Score tests ----------
 
     // คำนวณคะแนนตามจำนวน Moves
     static int calculateScore(int moves) {
-        int score = 100;
-
-        if (moves >= 9) {
-            score = score - (moves - 8) * 3;
-        }
-
-        if (score < 0) {
-            score = 0;
-        }
-
-        return score;
+        ScoreManager score = new ScoreManager();
+        score.update(moves);
+        return score.getScore();
     }
 
     static void testScore() {
