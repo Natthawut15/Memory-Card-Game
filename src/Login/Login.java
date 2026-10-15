@@ -59,10 +59,13 @@ public class Login extends JFrame implements ActionListener {
 
         // สร้าง Player
         Player player = new Player(username);
+
         // บันทึกชื่อผู้เล่นลง CSV
         PlayerCSV.savePlayer(username);
+
         // ไปหน้า Main Menu
         new Mainmenu(player);
+        
         // ปิดหน้า Login
         dispose();
     }
@@ -75,5 +78,3 @@ public class Login extends JFrame implements ActionListener {
     }
 
 }
-
-    
