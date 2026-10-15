@@ -49,10 +49,16 @@ public class Board extends JFrame {
         scoreLB = new JLabel("Score: 100");
         JButton newGameBT = new JButton("New Game");
         JButton selectSetBT = new JButton("Select Set");
+        JButton leaderboardBT = new JButton("Leaderboard");
         newGameBT.addActionListener(e -> resetGame());
         selectSetBT.addActionListener(e -> {
             stopTimers();
             new SelectCardSet(player);
+            dispose();
+        });
+        leaderboardBT.addActionListener(e -> {
+            stopTimers();
+            new LeaderBoard(player);
             dispose();
         });
         p.add(playerLB);
@@ -61,6 +67,7 @@ public class Board extends JFrame {
         p.add(movesLB);
         p.add(newGameBT);
         p.add(selectSetBT);
+        p.add(leaderboardBT);
         p.add(scoreLB);
         return p;
     }
@@ -80,39 +87,43 @@ public class Board extends JFrame {
     }
 
     private void flipCard(int index) {
+        // ตรวจรูปก่อนเปลี่ยนสถานะ เพื่อไม่ให้นับใบที่ไม่มีภาพ
+        Card card = logic.getCards().get(index);
+        if (logic.isGameOver() || logic.isWaiting() || card.isMatched()
+                || index == logic.getFirstIndex()) return;
+        ImageIcon icon = card.getImage();
+        if (icon.getIconWidth() <= 0) {
+            JOptionPane.showMessageDialog(this, "Image not found: " + card.getImagePath());
+            return;
+        }
+
         int first = logic.getFirstIndex();
-        GameLogic.Result result = logic.selectCard(index);
-        if (result == GameLogic.Result.BLOCKED) return;
-        showCard(index);
+        String result = logic.flip(index);
+        if (result.equals("BLOCKED")) return;
+        showCard(index, icon);
         movesLB.setText("Moves: " + logic.getMoves());
         scoreLB.setText("Score: " + logic.getScore());
 
-        if (result == GameLogic.Result.MATCH || result == GameLogic.Result.WIN) {
+        if (result.equals("MATCH") || result.equals("WIN")) {
             all_BT[first].setEnabled(false);
             all_BT[index].setEnabled(false);
         }
-        if (result == GameLogic.Result.WRONG) {
+        if (result.equals("WRONG")) {
             int second = index;
             flipTimer = new Timer(800, e -> {
                 hideCard(first);
                 hideCard(second);
-                logic.finishWrongPair();
+                logic.hideWrongPair();
+                flipTimer.stop();
             });
             flipTimer.setRepeats(false);
             flipTimer.start();
         }
-        if (result == GameLogic.Result.WIN) finishGame();
-        if (result == GameLogic.Result.LOSE) loseGame();
+        if (result.equals("WIN")) finishGame();
+        if (result.equals("LOSE")) loseGame();
     }
 
-    private void showCard(int index) {
-        Card card = logic.getCards().get(index);
-        ImageIcon icon = card.getImage();
-        if (icon.getIconWidth() <= 0) {
-            JOptionPane.showMessageDialog(this, "Image not found: " + card.getImagePath());
-            all_BT[index].setText("?");
-            return;
-        }
+    private void showCard(int index, ImageIcon icon) {
         Image image = icon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
         all_BT[index].setText("");
         all_BT[index].setIcon(new ImageIcon(image));
@@ -146,7 +157,6 @@ public class Board extends JFrame {
     private void resetGame() {
         stopTimers();
         logic.reset(cardSet.createCards());
-        clock.reset();
         timeLB.setText("Time: 00:00");
         movesLB.setText("Moves: 0");
         scoreLB.setText("Score: 100");
@@ -155,7 +165,7 @@ public class Board extends JFrame {
             button.setText("?");
             button.setEnabled(true);
         }
-        clock.start();
+        clock.reset();
     }
 
     private void stopTimers() {
