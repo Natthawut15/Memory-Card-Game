@@ -4,8 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class PlayerCSV {
-    private static final String FILE_NAME =
-        "players.csv";
+    private static final String FILE_NAME = "players.csv";
 
     public static void savePlayer(String username) {
         try (
