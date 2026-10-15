@@ -27,7 +27,7 @@ public class GameLogic {
 
         secondIndex = index;
         moves++;
-        score.update(moves);
+        score.onMove(moves);
         boolean same = cards.get(firstIndex).getImagePath()
                 .equals(cards.get(secondIndex).getImagePath());
         if (same) {
